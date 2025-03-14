@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda do Dia Atual</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        #calendar {
+            max-width: 95%;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #events {
+            display: flex; /* Layout flexível para dividir em duas colunas */
+            gap: 20px; /* Espaçamento entre as colunas */
+        }
+        .event-column {
+            flex: 1; /* Cada coluna ocupa metade do espaço disponível */
+        }
+        .event {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            border-left: 5px solid #003366; /* Azul escuro */
+            transition: background-color 0.3s ease;
+        }
+        .event:hover {
+            background-color: #e6f0ff; /* Azul claro */
+        }
+        .event-title {
+            font-weight: bold;
+            color: #003366; /* Azul escuro */
+            font-size: 2em; /* Tamanho maior para TV */
+            margin-bottom: 10px;
+        }
+        .event-time {
+            color: #555;
+            font-size: 1.7em; /* Tamanho maior para TV */
+            margin-bottom: 10px;
+        }
+        .event-description {
+            color: #666;
+            font-size: 1.2em; /* Tamanho maior para TV */
+            margin-top: 10px;
+        }
+        h2 {
+            color: #003366; /* Azul escuro */
+            text-align: center;
+            font-size: 2em; /* Tamanho maior para TV */
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="calendar">
+        <h2 id="agenda-title">Agenda do dia atual</h2>
+        <div id="events">
+            <div class="event-column" id="column1"></div> <!-- Coluna 1 -->
+            <div class="event-column" id="column2"></div> <!-- Coluna 2 -->
+        </div>
+    </div>
+
+    <script>
+        const calendarId = '48a42449b898fb90d99e655ae515a0fb84b3bdeda0d839711aac8e86a8a5f023@group.calendar.google.com';
+        const apiKey = 'AIzaSyCjrT907eQdeRybg-jEfXRAIslGJDBnUPo'; // Chave de API fornecida
+
+        // Função para formatar a data no formato dd/mm/aaaa
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0'); // Dia com 2 dígitos
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês com 2 dígitos
+            const year = date.getFullYear(); // Ano com 4 dígitos
+            return `${day}/${month}/${year}`;
+	    
+        }
+
+        // Atualiza o título com a data atual
+        function updateAgendaTitle() {
+            const today = new Date();
+            const formattedDate = formatDate(today);
+            document.getElementById('agenda-title').textContent = `Agenda do dia ${formattedDate}`;
+        }
+
+        // Função para buscar e exibir os eventos do dia atual
+        function fetchTodaysEvents() {
+            const today = new Date().toISOString().split('T')[0]; // Data atual no formato YYYY-MM-DD
+            const timeMin = `${today}T00:00:00Z`;
+            const timeMax = `${today}T23:59:59Z`;
+
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const events = data.items;
+                    const column1 = document.getElementById('column1');
+                    const column2 = document.getElementById('column2');
+                    column1.innerHTML = ''; // Limpa a coluna 1
+                    column2.innerHTML = ''; // Limpa a coluna 2
+
+                    if (events.length === 0) {
+                        column1.innerHTML = '<p>Nenhum evento para hoje.</p>';
+                        return;
+                    }
+
+                    const now = new Date(); // Horário atual
+                    const filteredEvents = events.filter(event => {
+                        const eventEnd = event.end.dateTime ? new Date(event.end.dateTime) : new Date(event.end.date);
+                        return eventEnd > now; // Filtra apenas eventos que ainda não terminaram
+                    });
+
+                    if (filteredEvents.length === 0) {
+                        column1.innerHTML = '<p>Nenhum evento em andamento ou futuro para hoje.</p>';
+                        return;
+                    }
+
+                    // Alterna os eventos entre as colunas
+                    filteredEvents.forEach((event, index) => {
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = 'event';
+
+                        const eventTitle = document.createElement('div');
+                        eventTitle.className = 'event-title';
+                        eventTitle.textContent = event.summary || 'Sem título';
+                        eventDiv.appendChild(eventTitle);
+
+                        const eventTime = document.createElement('div');
+                        eventTime.className = 'event-time';
+
+                        if (event.start.dateTime) {
+                            const startTime = new Date(event.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            const endTime = new Date(event.end.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            eventTime.textContent = `${startTime} - ${endTime}`;
+                        } else if (event.start.date) {
+                            eventTime.textContent = 'Dia todo';
+                        }
+
+                        eventDiv.appendChild(eventTime);
+
+                        if (event.description) {
+                            const eventDescription = document.createElement('div');
+                            eventDescription.className = 'event-description';
+                            eventDescription.textContent = event.description;
+                            eventDiv.appendChild(eventDescription);
+                        }
+
+                        // Alterna entre as colunas
+                        if (index % 2 === 0) {
+                            column1.appendChild(eventDiv); // Eventos pares na coluna 1
+                        } else {
+                            column2.appendChild(eventDiv); // Eventos ímpares na coluna 2
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar eventos:', error);
+                    document.getElementById('column1').innerHTML = '<p>Erro ao carregar eventos.</p>';
+                });
+        }
+
+        // Função para atualizar a agenda (título e eventos)
+        function updateAgenda() {
+            updateAgendaTitle(); // Atualiza o título com a data atual
+            fetchTodaysEvents(); // Busca e exibe os eventos do dia
+        }
+
+        // Atualiza a agenda imediatamente ao carregar a página
+        updateAgenda();
+
+        // Configura a atualização automática a cada 30 segundos
+        setInterval(updateAgenda, 30000); // 30000 milissegundos = 30 segundos
+    </script>
+</body>
+</html>
