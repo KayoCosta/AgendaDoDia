@@ -37,14 +37,18 @@
 
         // Função para buscar e exibir os eventos do dia atual
         function fetchTodaysEvents() {
-            const today = new Date().toISOString().split('T')[0]; // Data atual no formato YYYY-MM-DD
-            const timeMin = `${today}T00:00:00Z`;
-            const timeMax = `${today}T23:59:59Z`;
+            const now = new Date();
+    	    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+            const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+            const timeMin = start.toISOString();
+            const timeMax = end.toISOString();
 
             const timeZone = 'America/Sao_Paulo';
-	    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true&timeZone=${timeZone}`;
-
-            fetch(url)
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true&timeZone=${timeZone}`;
+		
+	
+	fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const events = data.items;
