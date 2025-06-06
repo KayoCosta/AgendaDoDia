@@ -2,151 +2,117 @@ const timeEl = document.getElementById("time");
 const dateEl = document.getElementById("date");
 const dayEl = document.getElementById("day");
 
-const calendarId = '48a42449b898fb90d99e655ae515a0fb84b3bdeda0d839711aac8e86a8a5f023@group.calendar.google.com';
-const apiKey = 'AIzaSyCZOcYgSCAX0pTWBR1mJ8m-udAFAIyGyRA';
-
-const eventsPerPage = 8; // Máximo de eventos por página
-let currentPage = 0;
-let paginatedEvents = [];
-
-// Atualizar relógio e data
 function atualizarTempo() {
   const now = new Date();
-  timeEl.textContent = now.toLocaleTimeString("pt-BR");
-  dateEl.textContent = now.toLocaleDateString("pt-BR", {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-  dayEl.textContent = now.toLocaleDateString("pt-BR", { weekday: 'long' });
+  timeEl.textContent = now.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  dateEl.textContent = now.toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: 'numeric' });
+  dayEl.textContent = now.toLocaleDateString("pt-BR", { weekday: 'long' }).toUpperCase();
 }
-
 setInterval(atualizarTempo, 1000);
 atualizarTempo();
 
+const calendarId = '48a42449b898fb90d99e655ae515a0fb84b3bdeda0d839711aac8e86a8a5f023@group.calendar.google.com';
+const apiKey = 'AIzaSyCZOcYgSCAX0pTWBR1mJ8m-udAFAIyGyRA';
+let currentPage = 0;
+let paginatedEvents = [];
+
 function formatDate(date) {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+  return date.toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 function updateAgendaTitle() {
-    const today = new Date();
-    const formattedDate = formatDate(today);
-    document.getElementById('agenda-title').textContent = `AGENDA DE AUDIÊNIAS - ${formattedDate}`;
-}
-
-function paginateEvents(events) {
-    const pages = [];
-    for (let i = 0; i < events.length; i += eventsPerPage) {
-        pages.push(events.slice(i, i + eventsPerPage));
-    }
-    return pages;
-}
-
-function renderPage(pageEvents) {
-    const column1 = document.getElementById('column1');
-    column1.innerHTML = '';
-
-    if (!pageEvents || pageEvents.length === 0) {
-        column1.innerHTML = '<p style="font-size: 2rem; text-align:center;">Nenhum evento para hoje.</p>';
-        return;
-    }
-
-    pageEvents.forEach(event => {
-        const eventDiv = document.createElement('div');
-        eventDiv.className = 'event';
-
-        const eventTitle = document.createElement('div');
-        eventTitle.className = 'event-title';
-        eventTitle.textContent = event.summary || 'Sem título';
-        eventDiv.appendChild(eventTitle);
-
-        const eventTime = document.createElement('div');
-        eventTime.className = 'event-time';
-
-        if (event.start.dateTime) {
-            const startTime = new Date(event.start.dateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            const endTime = new Date(event.end.dateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            eventTime.textContent = `${startTime} - ${endTime}`;
-        } else if (event.start.date) {
-            eventTime.textContent = 'Dia todo';
-        }
-
-        eventDiv.appendChild(eventTime);
-
-        if (event.description) {
-            const eventDescription = document.createElement('div');
-            eventDescription.className = 'event-description';
-            eventDescription.textContent = event.description;
-            eventDiv.appendChild(eventDescription);
-        }
-
-        column1.appendChild(eventDiv);
-    });
+  const today = new Date();
+  const formattedDate = formatDate(today);
+  document.getElementById('agenda-title').textContent = `AGENDA DE AUDIÊNCIAS - ${formattedDate}`;
 }
 
 function fetchTodaysEvents() {
-    const now = new Date();
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  const timeMin = start.toISOString();
+  const timeMax = end.toISOString();
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true`;
 
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const events = (data.items || []).filter(event => {
+        const end = event.end.dateTime ? new Date(event.end.dateTime) : new Date(event.end.date);
+        return end > now;
+      });
 
-    const timeMin = start.toISOString();
-    const timeMax = end.toISOString();
-    const timeZone = 'America/Sao_Paulo';
+      paginatedEvents = [];
+      for (let i = 0; i < events.length; i += 8) {
+        paginatedEvents.push(events.slice(i, i + 8));
+      }
 
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true&timeZone=${timeZone}`;
-
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const events = data.items || [];
-            const currentTime = new Date();
-
-            const filteredEvents = events.filter(event => {
-                const eventEnd = event.end.dateTime ? new Date(event.end.dateTime) : new Date(event.end.date);
-                return eventEnd > currentTime;
-            });
-
-            if (filteredEvents.length === 0) {
-                paginatedEvents = [[]];
-                renderPage([]);
-                return;
-            }
-
-            paginatedEvents = paginateEvents(filteredEvents);
-            currentPage = 0;
-            renderPage(paginatedEvents[currentPage]);
-        })
-        .catch(error => {
-            console.error('Erro ao buscar eventos:', error);
-            document.getElementById('column1').innerHTML = '<p style="font-size: 2rem; text-align:center;">Erro ao carregar eventos.</p>';
-        });
+      currentPage = 0;
+      renderEvents();
+    })
+    .catch(error => {
+      console.error('Erro ao buscar eventos:', error);
+      document.getElementById('events').innerHTML = '<p>ERRO AO CARREGAR EVENTOS.</p>';
+    });
 }
 
-function nextPage() {
-    if (!paginatedEvents || paginatedEvents.length === 0) return;
+function renderEvents() {
+  const eventsContainer = document.getElementById('events');
+  eventsContainer.innerHTML = '';
 
-    currentPage++;
-    if (currentPage >= paginatedEvents.length) {
-        currentPage = 0;
+  if (paginatedEvents.length === 0) {
+    eventsContainer.innerHTML = '<p>NENHUM EVENTO PARA HOJE.</p>';
+    return;
+  }
+
+  const events = paginatedEvents[currentPage];
+  events.forEach(event => {
+    const div = document.createElement('div');
+    div.className = 'event';
+
+    const row = document.createElement('div');
+    row.className = 'event-row';
+
+    const leftCol = document.createElement('div');
+    leftCol.className = 'event-left';
+
+    const title = document.createElement('div');
+    title.className = 'event-title';
+    title.textContent = (event.summary || 'SEM TÍTULO').toUpperCase();
+    leftCol.appendChild(title);
+
+    const time = document.createElement('div');
+    time.className = 'event-time';
+    if (event.start.dateTime) {
+      const startTime = new Date(event.start.dateTime).toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      time.textContent = startTime;
+    } else {
+      time.textContent = 'DIA TODO';
     }
-    renderPage(paginatedEvents[currentPage]);
+    leftCol.appendChild(time);
+
+    const rightCol = document.createElement('div');
+    rightCol.className = 'event-description';
+    rightCol.textContent = (event.description || 'DESCRIÇÃO NÃO INFORMADA. TEXTO ALTERNATIVO TESTE.').toUpperCase();
+
+    row.appendChild(leftCol);
+    row.appendChild(rightCol);
+    div.appendChild(row);
+
+    eventsContainer.appendChild(div);
+  });
+
+  currentPage = (currentPage + 1) % paginatedEvents.length;
 }
 
 function updateAgenda() {
-    updateAgendaTitle();
-    fetchTodaysEvents();
+  updateAgendaTitle();
+  fetchTodaysEvents();
 }
 
 updateAgenda();
-
-setInterval(() => {
-    if (paginatedEvents.length > 1) {
-        nextPage();
-    } else {
-        updateAgenda();
-    }
-}, 60000);
+setInterval(renderEvents, 60000);
+setInterval(updateAgenda, 5 * 60 * 1000);
