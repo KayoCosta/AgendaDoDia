@@ -47,16 +47,14 @@ function paginateEvents(events) {
 
 function renderPage(pageEvents) {
     const column1 = document.getElementById('column1');
-    const column2 = document.getElementById('column2');
     column1.innerHTML = '';
-    column2.innerHTML = '';
 
     if (!pageEvents || pageEvents.length === 0) {
-        column1.innerHTML = '<p>Nenhum evento para hoje.</p>';
+        column1.innerHTML = '<p style="font-size: 2rem; text-align:center;">Nenhum evento para hoje.</p>';
         return;
     }
 
-    pageEvents.forEach((event, index) => {
+    pageEvents.forEach(event => {
         const eventDiv = document.createElement('div');
         eventDiv.className = 'event';
 
@@ -85,12 +83,7 @@ function renderPage(pageEvents) {
             eventDiv.appendChild(eventDescription);
         }
 
-        // Distribui eventos em duas colunas: pares na coluna 1, ímpares na coluna 2
-        if (index % 2 === 0) {
-            column1.appendChild(eventDiv);
-        } else {
-            column2.appendChild(eventDiv);
-        }
+        column1.appendChild(eventDiv);
     });
 }
 
@@ -113,47 +106,4 @@ function fetchTodaysEvents() {
             const currentTime = new Date();
 
             const filteredEvents = events.filter(event => {
-                const eventEnd = event.end.dateTime ? new Date(event.end.dateTime) : new Date(event.end.date);
-                return eventEnd > currentTime;
-            });
-
-            if (filteredEvents.length === 0) {
-                paginatedEvents = [[]];
-                renderPage([]);
-                return;
-            }
-
-            paginatedEvents = paginateEvents(filteredEvents);
-            currentPage = 0;
-            renderPage(paginatedEvents[currentPage]);
-        })
-        .catch(error => {
-            console.error('Erro ao buscar eventos:', error);
-            document.getElementById('column1').innerHTML = '<p>Erro ao carregar eventos.</p>';
-        });
-}
-
-function nextPage() {
-    if (!paginatedEvents || paginatedEvents.length === 0) return;
-
-    currentPage++;
-    if (currentPage >= paginatedEvents.length) {
-        currentPage = 0;
-    }
-    renderPage(paginatedEvents[currentPage]);
-}
-
-function updateAgenda() {
-    updateAgendaTitle();
-    fetchTodaysEvents();
-}
-
-updateAgenda();
-
-setInterval(() => {
-    if (paginatedEvents.length > 1) {
-        nextPage();
-    } else {
-        updateAgenda();
-    }
-}, 60000);
+                const eventEnd = event.end.dateTime ? new Date(event.end.dateTime) : new
