@@ -5,6 +5,7 @@ body {
   background: #fff;
   height: 100vh;
   overflow: hidden;
+  text-transform: uppercase;
 }
 
 .sidebar {
@@ -16,7 +17,6 @@ body {
   align-items: center;
   border-right: 1px solid #ccc;
   height: 100%;
-  overflow: auto;
 }
 
 .logo img {
@@ -33,7 +33,7 @@ body {
 }
 
 .time {
-  margin-top: 20px;  
+  margin-top: 20px;
   text-align: center;
   font-size: 1.4rem;
   color: #fff;
@@ -67,27 +67,37 @@ body {
 }
 
 .event {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   background: #fff;
   border: 2px solid #3c78d8;
   padding: 20px;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 500;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.event-info {
+  display: flex;
+  flex-direction: column;
+  flex: 2;
 }
 
 .event-title {
   color: #2c3e50;
   font-weight: bold;
+  font-size: 2.2rem;
+  margin-bottom: 10px;
 }
 
 .event-time {
   color: #3c78d8;
-  margin-top: 10px;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
 }
 
 .event-description {
+  flex: 3;
   color: #555;
-  margin-top: 10px;
-  font-size: 1.3rem;
+  font-size: 1.6rem;
+  padding-left: 30px;
 }
