@@ -106,4 +106,47 @@ function fetchTodaysEvents() {
             const currentTime = new Date();
 
             const filteredEvents = events.filter(event => {
-                const eventEnd = event.end.dateTime ? new Date(event.end.dateTime) : new
+                const eventEnd = event.end.dateTime ? new Date(event.end.dateTime) : new Date(event.end.date);
+                return eventEnd > currentTime;
+            });
+
+            if (filteredEvents.length === 0) {
+                paginatedEvents = [[]];
+                renderPage([]);
+                return;
+            }
+
+            paginatedEvents = paginateEvents(filteredEvents);
+            currentPage = 0;
+            renderPage(paginatedEvents[currentPage]);
+        })
+        .catch(error => {
+            console.error('Erro ao buscar eventos:', error);
+            document.getElementById('column1').innerHTML = '<p style="font-size: 2rem; text-align:center;">Erro ao carregar eventos.</p>';
+        });
+}
+
+function nextPage() {
+    if (!paginatedEvents || paginatedEvents.length === 0) return;
+
+    currentPage++;
+    if (currentPage >= paginatedEvents.length) {
+        currentPage = 0;
+    }
+    renderPage(paginatedEvents[currentPage]);
+}
+
+function updateAgenda() {
+    updateAgendaTitle();
+    fetchTodaysEvents();
+}
+
+updateAgenda();
+
+setInterval(() => {
+    if (paginatedEvents.length > 1) {
+        nextPage();
+    } else {
+        updateAgenda();
+    }
+}, 60000);
