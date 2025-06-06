@@ -52,3 +52,23 @@ body {
         font-size: 2em; /* Tamanho maior para TV */
         margin-bottom: 30px;
     }
+
+/* Media Query para dispositivos menores (celulares) */
+    @media (max-width: 768px) {
+        #events {
+            flex-direction: column; /* Coloca as colunas em uma única coluna */
+        }
+        .event-title {
+            font-size: 1.5em; /* Tamanho menor para dispositivos móveis */
+        }
+        .event-time {
+            font-size: 1.2em;
+        }
+        .event-description {
+            font-size: 1em;
+        }
+        h2 {
+            font-size: 1.5em; /* Tamanho menor para o título */
+        }
+    }
+
