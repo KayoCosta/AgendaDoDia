@@ -1,12 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda do Dia Atual</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>APP - Fórum Cível - Vitória/ES</title>
+  <link rel="icon" href="img/brasaoEspiritoSanto.png" type="image/x-icon">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/scripts.js" defer></script>
 </head>
 <body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="img/brasaoEspiritoSanto.png" alt="Logo do Fórum">
+    </div>
+    <div class="tribunal">
+      <p>FÓRUM CÍVEL</p>
+    </div>
+     <div class="vitoria">
+      <p id="vitoria">Vitória/ES</p>      
+    </div>    
+    <div class="time">
+      <p id="time">.</p>
+      <p id="date">.</p>
+      <p id="day">.</p>
+    </div>    
+  </div>
+
+  <div class="main-content">
     <div id="calendar">
         <h2 id="agenda-title">Agenda do dia atual</h2>
         <div id="events">
@@ -124,5 +144,6 @@
         updateAgenda();
         setInterval(updateAgenda, 20000); // Atualiza a cada 20 segundos
     </script>
+  </div>
 </body>
 </html>
