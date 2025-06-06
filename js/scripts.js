@@ -34,7 +34,7 @@ function formatDate(date) {
 function updateAgendaTitle() {
     const today = new Date();
     const formattedDate = formatDate(today);
-    document.getElementById('agenda-title').textContent = `AUDIÊNCIAS DE HOJE (${formattedDate})`;
+    document.getElementById('agenda-title').textContent = `Agenda do dia ${formattedDate}`;
 }
 
 function paginateEvents(events) {
