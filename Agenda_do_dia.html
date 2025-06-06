@@ -5,61 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda do Dia Atual</title>
     <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 20px;
-    }
-    #calendar {
-        max-width: 95%;
-        margin: 0 auto;
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    #events {
-        display: flex; /* Layout flexível para dividir em duas colunas */
-        gap: 20px; /* Espaçamento entre as colunas */
-    }
-    .event-column {
-        flex: 1; /* Cada coluna ocupa metade do espaço disponível */
-    }
-    .event {
-        padding: 20px;
-        border-bottom: 1px solid #ddd;
-        margin-bottom: 15px;
-        background-color: #f9f9f9;
-        border-left: 5px solid #003366; /* Azul escuro */
-        transition: background-color 0.3s ease;
-    }
-    .event:hover {
-        background-color: #e6f0ff; /* Azul claro */
-    }
-    .event-title {
-        font-weight: bold;
-        color: #003366; /* Azul escuro */
-        font-size: 2em; /* Tamanho maior para TV */
-        margin-bottom: 10px;
-    }
-    .event-time {
-        color: #555;
-        font-size: 1.7em; /* Tamanho maior para TV */
-        margin-bottom: 10px;
-    }
-    .event-description {
-        color: #666;
-        font-size: 1.2em; /* Tamanho maior para TV */
-        margin-top: 10px;
-    }
-    h2 {
-        color: #003366; /* Azul escuro */
-        text-align: center;
-        font-size: 2em; /* Tamanho maior para TV */
-        margin-bottom: 30px;
-    }
-
+    
     /* Media Query para dispositivos menores (celulares) */
     @media (max-width: 768px) {
         #events {
