@@ -1,0 +1,82 @@
+body {
+  display: flex;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #fff;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 25vh;
+  background: linear-gradient(200deg, #87CEEB, #FFB6C1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid #ddd;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  height: 100%;
+  overflow: auto;
+}
+
+.logo img {
+  max-width: 100%;
+  height: auto;
+}
+
+.tribunal {
+  font-size: 2rem;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 60px;
+}
+
+.vitoria {
+  font-size: 2rem;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.time {
+  margin-top: 20px;  
+  text-align: center;
+  width: 100%;
+  font-size: 40px;
+  color: #000;
+  font-weight: bold;  
+  line-height: 1;
+  text-transform: capitalize;  
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f4f4f4;
+  overflow: hidden;
+}
+
+#pdf-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+canvas, #image-display, #video-display {
+  max-height: 100%;
+  max-width: 100%;
+  display: none;
+}
+
+#image-display, #video-display {
+  object-fit: contain;
+}
