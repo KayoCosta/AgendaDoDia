@@ -16,7 +16,7 @@
     <div class="tribunal">
       <p>FÓRUM CÍVEL</p>
     </div>
-     <div class="vitoria">
+    <div class="vitoria">
       <p id="vitoria">Vitória/ES</p>      
     </div>    
     <div class="time">
@@ -28,122 +28,12 @@
 
   <div class="main-content">
     <div id="calendar">
-        <h2 id="agenda-title">Agenda do dia atual</h2>
-        <div id="events">
-            <div class="event-column" id="column1"></div> <!-- Coluna 1 -->
-            <div class="event-column" id="column2"></div> <!-- Coluna 2 -->
-        </div>
+      <h2 id="agenda-title">Agenda do dia atual</h2>
+      <div id="events">
+        <div class="event-column" id="column1"></div> <!-- Coluna 1 -->
+        <div class="event-column" id="column2"></div> <!-- Coluna 2 -->
+      </div>
     </div>
-
-    <script>
-        const calendarId = '48a42449b898fb90d99e655ae515a0fb84b3bdeda0d839711aac8e86a8a5f023@group.calendar.google.com';
-        const apiKey = 'AIzaSyCZOcYgSCAX0pTWBR1mJ8m-udAFAIyGyRA';
-
-        // Função para formatar a data no formato dd/mm/aaaa
-        function formatDate(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        }
-
-        // Atualiza o título com a data atual
-        function updateAgendaTitle() {
-            const today = new Date();
-            const formattedDate = formatDate(today);
-            document.getElementById('agenda-title').textContent = `Agenda do dia ${formattedDate}`;
-        }
-
-        // Função para buscar e exibir os eventos do dia atual
-        function fetchTodaysEvents() {
-            const now = new Date();
-
-            // Define o início e fim do dia atual no horário local
-            const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-            const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-
-            const timeMin = start.toISOString();
-            const timeMax = end.toISOString();
-            const timeZone = 'America/Sao_Paulo';
-
-            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&orderBy=startTime&singleEvents=true&timeZone=${timeZone}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const events = data.items || [];
-                    const column1 = document.getElementById('column1');
-                    const column2 = document.getElementById('column2');
-                    column1.innerHTML = '';
-                    column2.innerHTML = '';
-
-                    if (events.length === 0) {
-                        column1.innerHTML = '<p>Nenhum evento para hoje.</p>';
-                        return;
-                    }
-
-                    const currentTime = new Date();
-
-                    const filteredEvents = events.filter(event => {
-                        const eventEnd = event.end.dateTime ? new Date(event.end.dateTime) : new Date(event.end.date);
-                        return eventEnd > currentTime;
-                    });
-
-                    if (filteredEvents.length === 0) {
-                        column1.innerHTML = '<p>Nenhum evento em andamento ou futuro para hoje.</p>';
-                        return;
-                    }
-
-                    filteredEvents.forEach((event, index) => {
-                        const eventDiv = document.createElement('div');
-                        eventDiv.className = 'event';
-
-                        const eventTitle = document.createElement('div');
-                        eventTitle.className = 'event-title';
-                        eventTitle.textContent = event.summary || 'Sem título';
-                        eventDiv.appendChild(eventTitle);
-
-                        const eventTime = document.createElement('div');
-                        eventTime.className = 'event-time';
-
-                        if (event.start.dateTime) {
-                            const startTime = new Date(event.start.dateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                            const endTime = new Date(event.end.dateTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                            eventTime.textContent = `${startTime} - ${endTime}`;
-                        } else if (event.start.date) {
-                            eventTime.textContent = 'Dia todo';
-                        }
-
-                        eventDiv.appendChild(eventTime);
-
-                        if (event.description) {
-                            const eventDescription = document.createElement('div');
-                            eventDescription.className = 'event-description';
-                            eventDescription.textContent = event.description;
-                            eventDiv.appendChild(eventDescription);
-                        }
-
-                        if (index % 2 === 0) {
-                            column1.appendChild(eventDiv);
-                        } else {
-                            column2.appendChild(eventDiv);
-                        }
-                    });
-                })
-                .catch(error => {
-                    console.error('Erro ao buscar eventos:', error);
-                    document.getElementById('column1').innerHTML = '<p>Erro ao carregar eventos.</p>';
-                });
-        }
-
-        function updateAgenda() {
-            updateAgendaTitle();
-            fetchTodaysEvents();
-        }
-
-        updateAgenda();
-        setInterval(updateAgenda, 20000); // Atualiza a cada 20 segundos
-    </script>
   </div>
 </body>
 </html>
