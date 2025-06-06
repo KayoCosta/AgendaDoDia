@@ -34,7 +34,7 @@ function formatDate(date) {
 function updateAgendaTitle() {
     const today = new Date();
     const formattedDate = formatDate(today);
-    document.getElementById('agenda-title').textContent = `Agenda do dia ${formattedDate}`;
+    document.getElementById('agenda-title').textContent = `AGENDA DE AUDIÊNIAS - ${formattedDate}`;
 }
 
 function paginateEvents(events) {
